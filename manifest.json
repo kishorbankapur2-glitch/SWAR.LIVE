@@ -1,0 +1,35 @@
+{
+  "name": "Swar Music",
+  "short_name": "Swar",
+  "description": "Premium Monochrome Audio Player",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "categories": ["music", "entertainment"],
+  "icons": [
+    {
+      "src": "swar.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "swar.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Now Playing",
+      "short_name": "Playing",
+      "description": "Open current track",
+      "url": "./index.html",
+      "icons": [{ "src": "swar.png", "sizes": "192x192" }]
+    }
+  ]
+}
