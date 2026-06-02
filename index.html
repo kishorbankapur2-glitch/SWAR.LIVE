@@ -1178,6 +1178,7 @@
             * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
         }
     </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -1743,13 +1744,13 @@ document.addEventListener('click', e => {
 });
 
 // ─── Core Constants & Extended Premium Playlists ───
-const PIPED_INSTANCES = [
-    'https://pipedapi.kavin.rocks',
-    'https://pipedapi.adminforge.de',
-    'https://pipedapi.smnz.de',
-    'https://pipedapi.darkness.services',
-    'https://api.piped.private.coffee',
-    'https://pipedapi.syncstream.org'
+const INVIDIOUS_INSTANCES = [
+    'https://inv.nadeko.net',
+    'https://invidious.nerdvpn.de',
+    'https://inv.thepixora.com',
+    'https://yt.chocolatemoo53.com',
+    'https://invidious.tiekoetter.com',
+    'https://invidious.f5.si'
 ];
 
 // Expanded Curated Premium Tracks (25 songs for swipe row list mapping)
@@ -1852,15 +1853,14 @@ async function buildForYouFeed() {
                 const res = await searchAcrossInstances(q);
                 if (res?.items) {
                     const parsed = res.items
-                        .filter(it => it.url?.includes('/watch?v='))
+                        .filter(it => it.type === 'video')
                         .slice(0, tracksPerVibe)
                         .map(it => {
-                            const id = it.url.split('v=')[1]?.split('&')[0] || '';
                             return {
-                                id,
+                                id: it.videoId || '',
                                 title: (it.title || 'Unknown').replace(/&quot;/g, '"'),
-                                artist: it.uploaderName || 'Unknown Artist',
-                                duration: it.duration || 0,
+                                artist: it.author || 'Unknown Artist',
+                                duration: it.lengthSeconds || 0,
                                 _vibe: vibe
                             };
                         });
@@ -2302,9 +2302,8 @@ async function searchMusic(query) {
     try {
         const res = await searchAcrossInstances(query, searchAbortController.signal);
         if (!res?.items?.length) throw new Error();
-        tracks = res.items.filter(it => it.url?.includes('/watch?v=')).map(it => {
-            const id = it.url.split('v=')[1]?.split('&')[0] || '';
-            return { id, title: (it.title || 'Unknown').replace(/&quot;/g, '"'), artist: it.uploaderName || 'Unknown Artist', duration: it.duration || 0 };
+        tracks = res.items.filter(it => it.type === 'video').map(it => {
+            return { id: it.videoId || '', title: (it.title || 'Unknown').replace(/&quot;/g, '"'), artist: it.author || 'Unknown Artist', duration: it.lengthSeconds || 0 };
         });
         renderTrackGrid(); saveSearchQuery(query);
     } catch(err) {
@@ -2314,16 +2313,16 @@ async function searchMusic(query) {
     }
 }
 async function searchAcrossInstances(query, signal) {
-    const promises = PIPED_INSTANCES.map(async ins => {
+    const promises = INVIDIOUS_INSTANCES.map(async ins => {
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 6000);
+        const timeout = setTimeout(() => controller.abort(), 8000);
         try {
-            const res = await fetch(`${ins}/search?q=${encodeURIComponent(query)}&filter=music_songs`, { signal: signal || controller.signal });
+            const res = await fetch(`${ins}/api/v1/search?q=${encodeURIComponent(query)}&type=video`, { signal: signal || controller.signal });
             clearTimeout(timeout);
             if (!res.ok) throw new Error();
             const d = await res.json();
-            if (!d.items?.length) throw new Error();
-            return d;
+            if (!Array.isArray(d) || d.length === 0) throw new Error();
+            return { items: d };
         } catch(e) { clearTimeout(timeout); throw e; }
     });
     return await Promise.any(promises);
@@ -2524,9 +2523,8 @@ async function openMixPlaylist(name) {
     const all = [];
     for (const r of results) {
         if (r.status === 'fulfilled' && r.value?.items) {
-            all.push(...r.value.items.filter(it => it.url?.includes('/watch?v=')).slice(0, 10).map(it => {
-                const id = it.url.split('v=')[1]?.split('&')[0] || '';
-                return { id, title: (it.title || 'Unknown').replace(/&quot;/g, '"'), artist: it.uploaderName || 'Unknown Artist', duration: it.duration || 0 };
+            all.push(...r.value.items.filter(it => it.type === 'video').slice(0, 10).map(it => {
+                return { id: it.videoId || '', title: (it.title || 'Unknown').replace(/&quot;/g, '"'), artist: it.author || 'Unknown Artist', duration: it.lengthSeconds || 0 };
             }));
         }
     }
