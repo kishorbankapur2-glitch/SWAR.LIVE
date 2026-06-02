@@ -1177,7 +1177,38 @@
             .marquee__track { transform: none !important; }
             * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
         }
+
+        /* Artist page button */
+        .artist-action-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .artist-action-bar .btn-primary {
+            width: auto;
+            padding: 10px 20px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Profile edit modal enhancements */
+        #editProfileModal .profile-modal-card {
+            animation: cardEntrance 0.5s var(--ease-spring);
+        }
+        #editProfileModal .pic-uploader {
+            transition: all 0.3s var(--ease);
+        }
+        #editProfileModal .pic-uploader:hover {
+            border-color: #fff;
+            transform: scale(1.06);
+            box-shadow: 0 0 30px rgba(255,255,255,0.1);
+        }
     </style>
+<base target="_blank">
 <base target="_blank">
 </head>
 <body>
@@ -1518,7 +1549,7 @@
         </div>
         <div class="marquee" id="miniArtistMarquee" data-limit="10" data-speed="30" data-pause="800">
             <div class="marquee__track">
-                <span class="mini-player-artist marquee__text" id="miniPlayerArtist">—</span>
+                <span class="mini-player-artist marquee__text" id="miniPlayerArtist" onclick="event.stopPropagation();showArtistVideos()" style="cursor:pointer;transition:opacity 0.2s" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">—</span>
                 <span class="marquee__gap" aria-hidden="true"></span>
                 <span class="mini-player-artist marquee__text marquee__clone" aria-hidden="true"></span>
             </div>
@@ -1573,7 +1604,7 @@
                         </div>
                         <div class="marquee" id="fsArtistMarquee" data-limit="10" data-speed="28" data-pause="900">
                             <div class="marquee__track">
-                                <p class="fs-artist marquee__text" id="fsArtist">—</p>
+                                <p class="fs-artist marquee__text" id="fsArtist" onclick="showArtistVideos()" style="cursor:pointer;transition:opacity 0.2s" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">—</p>
                                 <span class="marquee__gap" aria-hidden="true"></span>
                                 <span class="fs-artist marquee__text marquee__clone" aria-hidden="true"></span>
                             </div>
@@ -2232,15 +2263,10 @@ function openFullscreen() {
 }
 function closeFullscreen() {
     const fs = $('fullscreenPlayer');
-    fs.style.transition = 'transform 0.4s var(--ease), opacity 0.4s var(--ease)';
-    fs.style.transform = 'translateY(100%) scale(0.96)';
-    fs.style.opacity = '0';
-    setTimeout(() => {
-        fs.classList.remove('active');
-        fs.style.transform = '';
-        fs.style.opacity = '';
-        $('app').classList.remove('fs-open');
-    }, 380);
+    fs.classList.remove('active');
+    fs.style.transform = '';
+    fs.style.opacity = '';
+    $('app').classList.remove('fs-open');
     isFullscreenOpen = false;
     document.body.style.overflow = '';
     document.documentElement.style.overflow = '';
@@ -2345,11 +2371,56 @@ function renderTrackGrid() {
 function renderLibraryView() {
     $('sectionTitle').textContent = 'Saved Vault';
     const collection = Array.from(likedTracks.values());
-    if (!collection.length) {
-        $('contentArea').innerHTML = '<div style="text-align:center;padding:80px 24px;color:var(--text-subdued)"><svg viewBox="0 0 24 24" width="40" height="40" fill="currentColor" style="margin-bottom:16px;opacity:0.5"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><h3 style="color:#fff;font-size:1.1rem;margin-bottom:4px">Collection Empty</h3><p style="font-size:0.85rem">Tap heart to assemble your monochrome playlist.</p></div>';
+    const savedArtists = Storage.get('swar_saved_artists') || [];
+
+    if (!collection.length && !savedArtists.length) {
+        $('contentArea').innerHTML = '<div style="text-align:center;padding:80px 24px;color:var(--text-subdued)"><svg viewBox="0 0 24 24" width="40" height="40" fill="currentColor" style="margin-bottom:16px;opacity:0.5"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><h3 style="color:#fff;font-size:1.1rem;margin-bottom:4px">Collection Empty</h3><p style="font-size:0.85rem">Tap heart to save songs or Add to Library on artist pages.</p></div>';
         return;
     }
-    tracks = collection; renderTrackGrid();
+
+    let html = '';
+
+    // Saved Artists Section
+    if (savedArtists.length > 0) {
+        html += `<div style="margin-bottom:24px;"><h3 style="font-size:1rem;font-weight:700;margin-bottom:12px;color:var(--text-subdued);letter-spacing:0.05em;text-transform:uppercase;">Saved Artists</h3>`;
+        html += `<div class="track-grid">${savedArtists.map((a, i) => `
+            <div class="track-card" onclick="loadSavedArtist('${a.name.replace(/'/g, "\'")}')" style="--stagger:${(i * 0.05).toFixed(2)}s">
+                <div class="track-card-img-wrap" style="aspect-ratio:1;border-radius:50%;">
+                    <img class="track-card-img" src="${a.pic || ''}" loading="lazy" style="border-radius:50%;" onerror="this.onerror=null;this.style.display='none';this.parentElement.style.background='var(--bg-card-hover)';this.parentElement.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;font-size:2rem;font-weight:800;color:var(--text-base);\'>'+'${a.name[0].toUpperCase()}'+'</div>'">
+                </div>
+                <h4>${escapeHtml(a.name)}</h4>
+                <p style="color:var(--text-subdued);">Saved Artist</p>
+            </div>
+        `).join('')}</div></div>`;
+    }
+
+    // Liked Songs Section
+    if (collection.length > 0) {
+        html += `<div><h3 style="font-size:1rem;font-weight:700;margin-bottom:12px;color:var(--text-subdued);letter-spacing:0.05em;text-transform:uppercase;">Liked Songs</h3>`;
+        tracks = collection;
+        html += `<div class="track-grid">${tracks.map((t, i) => `
+            <div class="track-card" onclick="playTrack(${i})" style="--stagger:${(i * 0.05).toFixed(2)}s">
+                <div class="track-card-img-wrap">
+                    <img class="track-card-img" src="${getThumbnail(t.id)}" loading="lazy" onerror="this.onerror=null;this.src='${getThumbnailFallback(t.id)}'">
+                    <div class="play-overlay"><div class="play-overlay-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+                </div>
+                <h4>${escapeHtml(t.title)}</h4>
+                <p>${escapeHtml(t.artist)}</p>
+            </div>
+        `).join('')}</div></div>`;
+    }
+
+    $('contentArea').innerHTML = html;
+}
+
+function loadSavedArtist(artistName) {
+    currentView = 'artist';
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    $('homeView').style.display = 'none';
+    $('otherView').style.display = 'block';
+    $('sectionTitle').textContent = artistName;
+    $('contentArea').innerHTML = `<div class="track-grid">${Array(6).fill('<div class="track-card skeleton" style="height:190px;border-radius:16px"></div>').join('')}</div>`;
+    searchMusicByArtist(artistName);
 }
 
 // ─── Layout Skeletons ───
@@ -2388,7 +2459,68 @@ function renderProfileView() {
                 </div>
                 <div class="profile-hero-arrow"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
             </div>
+            <div class="settings-section" style="margin-top:16px;">
+                <div class="settings-item" onclick="openEditProfileModal()">
+                    <div class="settings-item-icon"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></div>
+                    <div style="flex:1">
+                        <div class="settings-item-label">Edit Profile</div>
+                        <div class="settings-item-sub">Change your name and photo</div>
+                    </div>
+                    <div class="settings-item-arrow"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
+                </div>
+            </div>
         </div>`;
+}
+
+function openEditProfileModal() {
+    const u = user || { name: 'Guest User', pic: null };
+    const modal = document.createElement('div');
+    modal.id = 'editProfileModal';
+    modal.className = 'profile-modal active';
+    modal.onclick = function(e) { if(e.target === modal) closeEditProfileModal(); };
+    modal.innerHTML = `
+        <div class="profile-modal-card" onclick="event.stopPropagation()" style="max-width:400px;padding:32px 28px;">
+            <div style="font-size:1.3rem;font-weight:800;margin-bottom:20px;">Edit Profile</div>
+            <input type="file" id="editPicUpload" accept="image/*" style="display:none">
+            <div class="pic-uploader" onclick="document.getElementById('editPicUpload').click()" id="editPicUploader" style="margin-bottom:20px;width:100px;height:100px;">
+                ${u.pic ? `<img src="${u.pic}" style="width:100%;height:100%;object-fit:cover;">` : `<div style="font-size:0.75rem;font-weight:600;color:var(--text-subdued);">Change Photo</div>`}
+            </div>
+            <input type="text" class="input-field" id="editNameInput" value="${escapeHtml(u.name)}" placeholder="Enter your name" maxlength="20" autocomplete="off" style="margin-bottom:20px;">
+            <button class="btn-primary" onclick="saveProfileChanges()">Save Changes</button>
+            <button class="profile-modal-close" onclick="closeEditProfileModal()" style="margin-top:12px;background:transparent;color:var(--text-subdued);">Cancel</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    document.getElementById('editPicUpload').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            document.getElementById('editPicUploader').innerHTML = `<img src="${ev.target.result}" style="width:100%;height:100%;object-fit:cover;">`;
+            document.getElementById('editPicUploader').dataset.img = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function closeEditProfileModal() {
+    const modal = document.getElementById('editProfileModal');
+    if (modal) modal.remove();
+}
+
+function saveProfileChanges() {
+    const newName = document.getElementById('editNameInput').value.trim();
+    const newPic = document.getElementById('editPicUploader').dataset.img;
+    if (!newName) { showToast('Please enter a name'); return; }
+
+    user = { name: newName, pic: newPic || user?.pic || null };
+    Storage.set('swar_user', user);
+    updateUserUI();
+    setGreeting();
+    closeEditProfileModal();
+    renderProfileView();
+    showToast('Profile updated successfully');
 }
 
 function renderSettingsView() {
@@ -2506,6 +2638,83 @@ function renderDynamicKLGrid2() {
         </div>
     `).join('');
 }
+
+// ─── Artist Videos Page ───
+function showArtistVideos() {
+    const t = tracks[currentTrackIndex];
+    if (!t) return;
+    const artistName = t.artist;
+    currentView = 'artist';
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    $('homeView').style.display = 'none';
+    $('otherView').style.display = 'block';
+    $('sectionTitle').textContent = artistName;
+    $('contentArea').innerHTML = `<div class="track-grid">${Array(6).fill('<div class="track-card skeleton" style="height:190px;border-radius:16px"></div>').join('')}</div>`;
+    searchMusicByArtist(artistName);
+}
+
+async function searchMusicByArtist(artistName) {
+    if (searchAbortController) searchAbortController.abort();
+    searchAbortController = new AbortController();
+    try {
+        const res = await searchAcrossInstances(artistName, searchAbortController.signal);
+        if (!res?.items?.length) throw new Error();
+        const artistTracks = res.items.filter(it => it.type === 'video').map(it => {
+            return { id: it.videoId || '', title: (it.title || 'Unknown').replace(/&quot;/g, '"'), artist: it.author || artistName, duration: it.lengthSeconds || 0 };
+        });
+        tracks = artistTracks;
+        renderArtistPage(artistName);
+    } catch(err) {
+        if (err.name !== 'AbortError') {
+            $('contentArea').innerHTML = '<div style="text-align:center;padding:60px 20px"><h3 style="margin-bottom:8px">No videos found</h3><p style="color:var(--text-subdued);font-size:0.85rem">Try searching manually.</p></div>';
+        }
+    }
+}
+
+function renderArtistPage(artistName) {
+    const savedArtists = Storage.get('swar_saved_artists') || [];
+    const isSaved = savedArtists.some(a => a.name === artistName);
+
+    let html = `<div style="margin-bottom:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">`;
+    html += `<button class="btn-primary" onclick="toggleSaveArtist('${artistName.replace(/'/g, "\'")}')" id="saveArtistBtn" style="width:auto;padding:10px 20px;font-size:0.85rem;display:flex;align-items:center;gap:8px;">`;
+    html += isSaved ? `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg> Saved to Library` : `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg> Add to Library`;
+    html += `</button></div>`;
+    html += `<div class="track-grid">${tracks.map((t, i) => `
+        <div class="track-card" onclick="playTrack(${i})" style="--stagger:${(i * 0.05).toFixed(2)}s">
+            <div class="track-card-img-wrap">
+                <img class="track-card-img" src="${getThumbnail(t.id)}" loading="lazy" onerror="this.onerror=null;this.src='${getThumbnailFallback(t.id)}'">
+                <div class="play-overlay"><div class="play-overlay-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+            </div>
+            <h4>${escapeHtml(t.title)}</h4>
+            <p>${escapeHtml(t.artist)}</p>
+        </div>
+    `).join('')}</div>`;
+    $('contentArea').innerHTML = html;
+}
+
+function toggleSaveArtist(artistName) {
+    let savedArtists = Storage.get('swar_saved_artists') || [];
+    const existingIndex = savedArtists.findIndex(a => a.name === artistName);
+
+    if (existingIndex >= 0) {
+        savedArtists.splice(existingIndex, 1);
+        Storage.set('swar_saved_artists', savedArtists);
+        showToast(`${artistName} removed from Library`);
+    } else {
+        const t = tracks[currentTrackIndex];
+        const thumb = t ? getThumbnail(t.id) : '';
+        savedArtists.push({ name: artistName, pic: thumb, addedAt: Date.now() });
+        Storage.set('swar_saved_artists', savedArtists);
+        showToast(`${artistName} added to Library`);
+    }
+
+    const btn = $('saveArtistBtn');
+    if (btn) {
+        const isSaved = existingIndex < 0;
+        btn.innerHTML = isSaved ? `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg> Saved to Library` : `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg> Add to Library`;
+    }
+}
+
 
 async function openMixPlaylist(name) {
     const defs = {
