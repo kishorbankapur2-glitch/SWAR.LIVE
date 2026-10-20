@@ -1178,6 +1178,61 @@
             * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
         }
 
+        /* ── Search Results List (vertical) ── */
+        .search-section-label { font-size: 0.95rem; font-weight: 800; letter-spacing: -0.02em; margin: 4px 0 12px; }
+        .search-list { display: flex; flex-direction: column; gap: 2px; max-width: 720px; }
+        .search-row { display: flex; align-items: center; gap: 14px; padding: 10px 12px; border-radius: 14px; cursor: pointer; transition: background 0.2s var(--ease), transform 0.2s var(--ease-spring); }
+        .search-row:hover { background: var(--bg-card-hover); }
+        .search-row:active { transform: scale(0.985); }
+        .search-row-img { width: 52px; height: 52px; border-radius: 10px; object-fit: cover; background: #1a1a1a; flex-shrink: 0; }
+        .search-row-info { flex: 1; min-width: 0; }
+        .search-row-title { font-size: 0.92rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; }
+        .search-row-artist { font-size: 0.78rem; color: var(--text-subdued); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .search-row-play { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.08); border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.25s var(--ease-spring); }
+        .search-row:hover .search-row-play { background: #fff; border-color: #fff; }
+        .search-row-play svg { width: 16px; height: 16px; fill: #fff; transition: fill 0.2s; }
+        .search-row:hover .search-row-play svg { fill: #000; }
+        .search-skeleton-row { display: flex; align-items: center; gap: 14px; padding: 10px 12px; }
+        .search-skeleton-img { width: 52px; height: 52px; border-radius: 10px; flex-shrink: 0; }
+        .search-skeleton-lines { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+        .search-skeleton-line { height: 12px; border-radius: 6px; }
+        .search-skeleton-line.short { width: 55%; }
+        .search-empty { text-align: center; padding: 60px 24px; color: var(--text-subdued); }
+        .search-empty h3 { color: var(--text-base); font-size: 1.05rem; margin-bottom: 6px; font-weight: 800; }
+        .search-empty p { font-size: 0.85rem; }
+
+        /* ── Settings Toggle Switch ── */
+        .settings-toggle { width: 44px; height: 26px; border-radius: 13px; background: rgba(255,255,255,0.14); border: 1px solid var(--glass-border-strong); position: relative; transition: background 0.3s var(--ease); flex-shrink: 0; }
+        .settings-toggle-knob { position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: transform 0.3s var(--ease-spring); box-shadow: 0 2px 6px rgba(0,0,0,0.4); }
+        .settings-toggle.on { background: #34c759; border-color: #34c759; }
+        .settings-toggle.on .settings-toggle-knob { transform: translateX(18px); }
+
+        /* ── Apple-Inspired UI (optional mode) ── */
+        body.apple-ui .fullscreen-player { background: rgba(16,16,20,0.42); backdrop-filter: blur(50px) saturate(1.6); -webkit-backdrop-filter: blur(50px) saturate(1.6); }
+        body.apple-ui .fullscreen-bg::before { background: rgba(0,0,0,0.42); }
+        body.apple-ui .fs-orb { opacity: 0.14; }
+        body.apple-ui .fs-top { border-bottom-color: rgba(255,255,255,0.14); }
+        body.apple-ui .fs-label { color: rgba(255,255,255,0.55); }
+        body.apple-ui .fs-playlist-name { color: rgba(255,255,255,0.9); }
+        body.apple-ui .fs-album-wrap { border-radius: 32px !important; box-shadow: 0 28px 70px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.14); }
+        body.apple-ui .fs-artist { color: rgba(255,255,255,0.62); }
+        body.apple-ui .fs-time { color: rgba(255,255,255,0.65); }
+        body.apple-ui .fs-progress-bar { background: rgba(255,255,255,0.18); }
+        body.apple-ui .ap-audio-badge { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.14); }
+        body.apple-ui .fs-controls .fs-ctrl-btn { background: rgba(255,255,255,0.1) !important; border: 1px solid rgba(255,255,255,0.16) !important; box-shadow: 0 10px 26px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.16); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); color: rgba(255,255,255,0.88); }
+        body.apple-ui .fs-controls .fs-ctrl-btn::before { background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.22), rgba(255,255,255,0.05) 40%, transparent 65%); }
+        body.apple-ui .fs-controls .fs-ctrl-btn svg { opacity: 1; filter: none; }
+        body.apple-ui .fs-controls .fs-play-btn { background: rgba(255,255,255,0.94) !important; border: 1px solid rgba(255,255,255,0.7) !important; box-shadow: 0 18px 44px rgba(0,0,0,0.5), 0 0 34px rgba(255,255,255,0.12), inset 0 1px 0 rgba(255,255,255,0.9); }
+        body.apple-ui #likeBtn, body.apple-ui #sleepTimerBtn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.16) !important; border-radius: 14px; width: 42px; height: 42px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 8px 22px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.16); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); color: rgba(255,255,255,0.9); transition: transform 0.2s var(--ease-spring), background 0.2s; }
+        body.apple-ui #likeBtn:hover, body.apple-ui #sleepTimerBtn:hover { transform: translateY(-2px) scale(1.06); background: rgba(255,255,255,0.16); }
+        body.apple-ui .fs-options-panel { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.14); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); border-radius: 18px; }
+        body.apple-ui .fs-opt-btn { color: rgba(255,255,255,0.72); }
+        body.apple-ui .fs-opt-btn:hover { color: #fff; }
+        body.apple-ui .queue-panel { background: rgba(14,14,18,0.72); backdrop-filter: blur(44px); -webkit-backdrop-filter: blur(44px); }
+        body.apple-ui .swipe-down-hint { color: rgba(255,255,255,0.45); }
+        body.apple-ui .mini-player { background: rgba(28,28,32,0.55); border-color: rgba(255,255,255,0.16); box-shadow: 0 14px 40px rgba(0,0,0,0.55); }
+        body.apple-ui .search-row:hover { background: rgba(255,255,255,0.09); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+
         /* Artist page button */
         .artist-action-bar {
             display: flex;
@@ -1957,6 +2012,8 @@ let searchAbortController = null, searchDebounceTimer = null;
 let sleepTimer = null;
 let touchStartY = 0, isDragging = false, isScrubbing = false;
 let totalPlayedCount = 0;
+let searchSeq = 0;
+let searchResultsCache = [];
 
 window.homeFeaturedTracks = [];
 
@@ -2228,7 +2285,15 @@ function updateMediaSessionState() {
     if ('mediaSession' in navigator) navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
 }
 function updateAtmosphericBackground() {
-    $('fullscreenBg').style.background = 'linear-gradient(180deg,#0f0f12 0%,#000 100%)';
+    const bg = $('fullscreenBg');
+    if (document.body.classList.contains('apple-ui')) {
+        const t = tracks[currentTrackIndex];
+        bg.style.background = t
+            ? `url('${getThumbnail(t.id)}') center/cover no-repeat`
+            : 'linear-gradient(180deg,#1c1c22 0%,#000 100%)';
+    } else {
+        bg.style.background = 'linear-gradient(180deg,#0f0f12 0%,#000 100%)';
+    }
 }
 
 // ─── Fullscreen Controller ───
@@ -2306,7 +2371,7 @@ function updateNavIndicatorSlab() {
 
 // ─── Global Online Search Engine ───
 function saveSearchQuery(q) {
-    if (!q || q.trim().length < 2) return;
+    if (!q || !q.trim()) return;
     let history = Storage.get('swar_last_searches') || [];
     history = history.filter(item => item.toLowerCase() !== q.trim().toLowerCase());
     history.unshift(q.trim());
@@ -2321,21 +2386,23 @@ async function searchMusic(query) {
         const newTrack = { id: match[1], title: 'Imported Native Stream', artist: 'Source Link', duration: 0 };
         tracks = [newTrack, ...tracks]; renderTrackGrid(); playTrack(0); showToast('Imported dynamic Link'); return;
     }
-    $('sectionTitle').textContent = `Search results for "${query}"`;
-    $('contentArea').innerHTML = `<div class="track-grid">${Array(6).fill('<div class="track-card skeleton" style="height:190px;border-radius:16px"></div>').join('')}</div>`;
+    const mySeq = ++searchSeq;
+    renderSearchLoading();
     if (searchAbortController) searchAbortController.abort();
     searchAbortController = new AbortController();
     try {
         const res = await searchAcrossInstances(query, searchAbortController.signal);
-        if (!res?.items?.length) throw new Error();
-        tracks = res.items.filter(it => it.type === 'video').map(it => {
+        if (mySeq !== searchSeq) return;
+        const results = res.items.filter(it => it.type === 'video').map(it => {
             return { id: it.videoId || '', title: (it.title || 'Unknown').replace(/&quot;/g, '"'), artist: it.author || 'Unknown Artist', duration: it.lengthSeconds || 0 };
         });
-        renderTrackGrid(); saveSearchQuery(query);
+        if (!results.length) { renderSearchEmpty(); return; }
+        searchResultsCache = results;
+        tracks = [...results];
+        renderSearchResults(query);
+        saveSearchQuery(query);
     } catch(err) {
-        if (err.name !== 'AbortError') {
-            $('contentArea').innerHTML = '<div style="text-align:center;padding:60px 20px"><h3 style="margin-bottom:8px">Search Instance Idle</h3><p style="color:var(--text-subdued);font-size:0.85rem">Try again shortly or paste direct YouTube Stream link.</p></div>';
-        }
+        if (err.name !== 'AbortError' && mySeq === searchSeq) renderSearchError();
     }
 }
 async function searchAcrossInstances(query, signal) {
@@ -2352,6 +2419,60 @@ async function searchAcrossInstances(query, signal) {
         } catch(e) { clearTimeout(timeout); throw e; }
     });
     return await Promise.any(promises);
+}
+
+// ─── Search List Renderers (Vertical List) ───
+function searchRowHtml(t, i, mode) {
+    return `
+        <div class="search-row" onclick="playSearchResult('${mode}', ${i})">
+            <img class="search-row-img" src="${getThumbnail(t.id)}" loading="lazy" onerror="this.onerror=null;this.src='${getThumbnailFallback(t.id)}'">
+            <div class="search-row-info">
+                <div class="search-row-title">${escapeHtml(t.title)}</div>
+                <div class="search-row-artist">${escapeHtml(t.artist)}</div>
+            </div>
+            <div class="search-row-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>`;
+}
+function playSearchResult(mode, i) {
+    if (mode === 'trend') {
+        tracks = [...PREMIUM_CARDS_TRACKS];
+    } else {
+        if (!searchResultsCache[i]) return;
+        tracks = [...searchResultsCache];
+    }
+    playTrack(i);
+}
+function renderSearchIdle() {
+    $('sectionTitle').textContent = 'Search';
+    const trending = PREMIUM_CARDS_TRACKS.slice(0, 15);
+    $('contentArea').innerHTML = `
+        <div class="search-section-label">Trending Songs</div>
+        <div class="search-list">${trending.map((t, i) => searchRowHtml(t, i, 'trend')).join('')}</div>`;
+}
+function renderSearchLoading() {
+    $('sectionTitle').textContent = 'Search';
+    $('contentArea').innerHTML = `<div class="search-list">${Array(6).fill(`
+        <div class="search-skeleton-row">
+            <div class="search-skeleton-img skeleton"></div>
+            <div class="search-skeleton-lines">
+                <div class="search-skeleton-line skeleton"></div>
+                <div class="search-skeleton-line short skeleton"></div>
+            </div>
+        </div>`).join('')}</div>`;
+}
+function renderSearchResults(query) {
+    $('sectionTitle').textContent = 'Search';
+    $('contentArea').innerHTML = `
+        <div class="search-section-label">Results for "${escapeHtml(query)}"</div>
+        <div class="search-list">${searchResultsCache.map((t, i) => searchRowHtml(t, i, 'search')).join('')}</div>`;
+}
+function renderSearchEmpty() {
+    $('sectionTitle').textContent = 'Search';
+    $('contentArea').innerHTML = '<div class="search-empty"><h3>No songs found</h3><p>Try a different search term.</p></div>';
+}
+function renderSearchError() {
+    $('sectionTitle').textContent = 'Search';
+    $('contentArea').innerHTML = '<div class="search-empty"><h3>Search unavailable</h3><p>Please check your connection and try again.</p></div>';
 }
 
 // ─── Layout Grid Renderers ───
@@ -2525,18 +2646,17 @@ function saveProfileChanges() {
 
 function renderSettingsView() {
     $('sectionTitle').textContent = 'Settings';
-    const surfaceNames = { void: 'Void', carbon: 'Carbon', chalk: 'Chalk', matrix: 'Matrix', canvas: 'Raw Canvas' };
-    const currentSurface = Storage.get('swar_surface') || 'void';
+    const appleOn = document.body.classList.contains('apple-ui');
     $('contentArea').innerHTML = `
         <div class="profile-page">
             <div class="settings-section">
-                <div class="settings-item" onclick="openAppearancePanel()">
-                    <div class="settings-item-icon"><svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></div>
+                <div class="settings-item" onclick="toggleAppleUI()">
+                    <div class="settings-item-icon"><svg viewBox="0 0 24 24"><path d="M17.05 12.54c-.03-2.9 2.37-4.29 2.48-4.36-1.35-1.98-3.46-2.25-4.21-2.28-1.79-.18-3.5 1.06-4.41 1.06-.91 0-2.31-1.03-3.8-1-1.95.03-3.75 1.14-4.76 2.88-2.03 3.52-.52 8.74 1.46 11.6.97 1.4 2.12 2.97 3.63 2.91 1.46-.06 2.01-.94 3.77-.94s2.26.94 3.8.91c1.57-.03 2.57-1.42 3.53-2.83 1.11-1.62 1.57-3.19 1.6-3.27-.04-.02-3.07-1.18-3.09-4.68zM14.16 4c.8-.97 1.34-2.32 1.19-3.66-1.15.05-2.55.77-3.38 1.74-.74.86-1.39 2.23-1.22 3.55 1.29.1 2.6-.65 3.41-1.63z"/></svg></div>
                     <div style="flex:1">
-                        <div class="settings-item-label">Appearance Studio</div>
-                        <div class="settings-item-sub">Surface Material · ${surfaceNames[currentSurface] || 'Void'}</div>
+                        <div class="settings-item-label">Apple-Inspired UI</div>
+                        <div class="settings-item-sub">${appleOn ? 'Enabled — frosted-glass player' : 'Disabled — classic Swar interface'}</div>
                     </div>
-                    <div class="settings-item-arrow"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
+                    <div class="settings-toggle ${appleOn ? 'on' : ''}"><div class="settings-toggle-knob"></div></div>
                 </div>
                 <div class="settings-item" onclick="openAboutPage()">
                     <div class="settings-item-icon"><svg viewBox="0 0 24 24"><path d="M11 17h2v-6h-2v6zm1-15C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zM11 9h2V7h-2v2z"/></svg></div>
@@ -2850,8 +2970,13 @@ function setupEventListeners() {
     searchInput.addEventListener('input', e => {
         clearTimeout(searchDebounceTimer);
         const q = e.target.value.trim();
-        if (!q) { if (currentView === 'search') goHome(); return; }
-        searchDebounceTimer = setTimeout(() => searchMusic(q), 400);
+        if (!q) {
+            if (currentView === 'search') renderSearchIdle();
+            return;
+        }
+        if (currentView !== 'search') navigateTo('search');
+        renderSearchLoading();
+        searchDebounceTimer = setTimeout(() => searchMusic(q), 300);
     });
     searchInput.addEventListener('keypress', e => {
         if (e.key === 'Enter') { clearTimeout(searchDebounceTimer); const q = searchInput.value.trim(); if (q) searchMusic(q); }
@@ -2899,8 +3024,7 @@ function navigateTo(view) {
     } else {
         $('homeView').style.display = 'none'; $('otherView').style.display = 'block';
         if (view === 'search') {
-            $('sectionTitle').textContent = 'Discover Music';
-            $('contentArea').innerHTML = '<div style="text-align:center;padding:80px 24px;color:var(--text-subdued)"><svg viewBox="0 0 24 24" width="40" height="40" fill="currentColor" style="margin-bottom:16px;opacity:0.5"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5z"/></svg><h3 style="color:#fff;font-size:1.1rem;margin-bottom:4px">Dynamic Stream Input</h3><p style="font-size:0.85rem">Input search keywords or paste raw stream URL.</p></div>';
+            renderSearchIdle();
             $('searchInput').focus();
         } else if (view === 'library') renderLibraryView();
         else if (view === 'profile') renderProfileView();
@@ -2941,7 +3065,7 @@ function updateLikeButton() {
 function shareTrack() {
     const t = tracks[currentTrackIndex]; if (!t) return;
     const url = `https://youtube.com/watch?v=${t.id}`;
-    if (navigator.share) navigator.share({ title: t.title, text: `Listen to ${t.title} on Swar`, url });
+    if (navigator.share) navigator.share({ title: t.title, text: `Listen to ${t.title} by ${t.artist} on Swar`, url });
     else navigator.clipboard.writeText(url).then(() => showToast('Direct link copied to clipboard'));
 }
 function toggleQueue() { $('queuePanel').classList.toggle('show'); }
@@ -3111,6 +3235,16 @@ const StudioEngine = (() => {
     };
 })();
 
+// ─── Apple-Inspired UI Mode (optional) ───
+function toggleAppleUI() { setAppleUI(!document.body.classList.contains('apple-ui')); }
+function setAppleUI(enabled) {
+    document.body.classList.toggle('apple-ui', enabled);
+    Storage.set('swar_apple_ui', enabled);
+    updateAtmosphericBackground();
+    if (currentView === 'settings') renderSettingsView();
+    showToast(enabled ? 'Apple-Inspired UI enabled' : 'Classic Swar UI restored');
+}
+
 // ─── Material System Interface ───
 const SwarMaterial = (() => {
     const SURFACES = {
@@ -3184,6 +3318,7 @@ window.addEventListener('DOMContentLoaded', () => {
     totalPlayedCount = Storage.get('swar_played_count') || 0;
     setGreeting();
     SwarMaterial.init();
+    if (Storage.get('swar_apple_ui')) document.body.classList.add('apple-ui');
     setupEventListeners();
     setupSwipeGesture();
     setupScrubbing();
