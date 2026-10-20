@@ -3331,5 +3331,732 @@ window.addEventListener('DOMContentLoaded', () => {
     setTimeout(updateNavIndicatorSlab, 300);
 });
 </script>
+<style id="swar-lyrics-css">
+/* ═══════════ Swar Lyrics System — Premium Monochrome Lyrics UI ═══════════ */
+.lyrics-overlay {
+    position: absolute; inset: 0; z-index: 130;
+    display: none; flex-direction: column;
+    background: var(--glass-bg-strong);
+    backdrop-filter: blur(48px) saturate(1.5); -webkit-backdrop-filter: blur(48px) saturate(1.5);
+    padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);
+    animation: slideUpSheet 0.45s var(--ease-spring);
+    user-select: none; -webkit-user-select: none;
+}
+.lyrics-overlay.active { display: flex; }
+.lyrics-top {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 22px 12px; border-bottom: 1px solid var(--glass-border); flex-shrink: 0;
+}
+.lyrics-back {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: rgba(255,255,255,0.07); border: 1px solid var(--glass-border);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    transition: all 0.2s var(--ease-spring); cursor: pointer;
+}
+.lyrics-back:hover { background: rgba(255,255,255,0.14); transform: scale(1.08); }
+.lyrics-back:active { transform: scale(0.92); }
+.lyrics-back svg { width: 16px; height: 16px; fill: var(--text-base); }
+.lyrics-head-meta { flex: 1; min-width: 0; }
+.lyrics-head-title {
+    font-size: 0.92rem; font-weight: 800; letter-spacing: -0.02em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.lyrics-head-artist {
+    font-size: 0.72rem; color: var(--text-subdued);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px;
+}
+.lyrics-badges { display: flex; gap: 6px; flex-shrink: 0; }
+.lyrics-chip {
+    font-size: 0.56rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 4px 9px; border-radius: 100px;
+    background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border); color: var(--text-subdued);
+}
+.lyrics-chip.hl { color: var(--text-base); border-color: var(--glass-border-strong); }
+.lyrics-scroll {
+    flex: 1; overflow-y: auto; padding: 36px 30px 70px;
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.lyrics-scroll::-webkit-scrollbar { display: none; }
+.lyrics-line {
+    font-size: clamp(1.15rem, 4.4vw, 1.55rem); font-weight: 700;
+    line-height: 1.5; letter-spacing: -0.015em;
+    color: var(--text-base); opacity: 0.38;
+    padding: 8px 0; max-width: 640px; margin: 0 auto;
+    transform-origin: left center;
+    transition: opacity 0.35s var(--ease), transform 0.35s var(--ease-spring);
+}
+.lyrics-line.active { opacity: 1; font-weight: 800; transform: scale(1.045); }
+.lyrics-line.plainline { opacity: 0.75; font-size: clamp(1rem, 3.8vw, 1.25rem); font-weight: 600; }
+.lyrics-state {
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    padding-top: 16vh; text-align: center; color: var(--text-subdued);
+}
+.lyrics-state-title { font-size: 0.98rem; font-weight: 800; color: var(--text-base); letter-spacing: -0.02em; }
+.lyrics-state-sub { font-size: 0.8rem; max-width: 300px; line-height: 1.55; }
+.lyrics-spinner {
+    width: 26px; height: 26px; border-radius: 50%;
+    border: 2px solid var(--glass-border-strong); border-top-color: var(--text-base);
+    animation: lyricsSpin 0.9s linear infinite;
+}
+@keyframes lyricsSpin { to { transform: rotate(360deg); } }
+.lyrics-foot {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 10px 22px calc(10px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--glass-border); flex-shrink: 0;
+}
+.lyrics-offset { display: flex; align-items: center; gap: 8px; }
+.lyrics-offset button {
+    min-width: 32px; height: 28px; padding: 0 8px; border-radius: 8px;
+    background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border);
+    font-size: 0.82rem; font-weight: 800; color: var(--text-base);
+    transition: all 0.2s var(--ease-spring); cursor: pointer;
+}
+.lyrics-offset button:hover { background: rgba(255,255,255,0.13); }
+.lyrics-offset button:active { transform: scale(0.9); }
+.lyrics-offset-val {
+    font-size: 0.7rem; color: var(--text-subdued); font-weight: 700;
+    min-width: 48px; text-align: center; font-variant-numeric: tabular-nums;
+}
+.lyrics-jump {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.7rem; font-weight: 700; color: var(--text-subdued);
+    padding: 7px 13px; border-radius: 100px;
+    background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border);
+    transition: all 0.2s var(--ease-spring); cursor: pointer;
+}
+.lyrics-jump:hover { color: var(--text-base); border-color: var(--glass-border-strong); transform: translateY(-1px); }
+.lyrics-jump svg { width: 13px; height: 13px; fill: currentColor; }
+.fs-opt-btn.lyrics-on { color: var(--text-base); }
+body.surface-chalk .lyrics-back, body.surface-canvas .lyrics-back,
+body.surface-chalk .lyrics-offset button, body.surface-canvas .lyrics-offset button,
+body.surface-chalk .lyrics-jump, body.surface-canvas .lyrics-jump,
+body.surface-chalk .lyrics-chip, body.surface-canvas .lyrics-chip { background: rgba(0,0,0,0.045); }
+body.surface-chalk .lyrics-overlay, body.surface-canvas .lyrics-overlay { background: var(--glass-bg-strong); }
+@media (min-width: 900px) { .lyrics-scroll { padding: 48px 60px 90px; } }
+@media (prefers-reduced-motion: reduce) { .lyrics-overlay { animation: none; } }
+</style>
+<script id="swar-lyrics-module">
+'use strict';
+/* ═══════════════════════════════════════════════════════════════════════════
+   Swar Lyrics System v1.0
+   Primary provider: LRCLIB (https://lrclib.net/docs — no API key required)
+   Secondary (plain only, configurable): lyrics.ovh
+   Non-invasive: hooks playTrack by reference, adds no changes to existing code.
+   ═══════════════════════════════════════════════════════════════════════════ */
+(function () {
+
+const CFG = {
+    cacheTtlMs: 7 * 24 * 60 * 60 * 1000,
+    requestTimeoutMs: 9000,
+    maxCacheEntries: 150,
+    syncTickMs: 200,
+    userScrollHoldMs: 4000,
+    storagePrefix: 'swar_lyrics_',
+    providers: {
+        lrclib:    { enabled: true, baseUrl: 'https://lrclib.net/api', maxAttempts: 2 },
+        lyricsOvh: { enabled: true, baseUrl: 'https://api.lyrics.ovh/v1' }
+    }
+};
+
+const reduceMotion = (typeof window !== 'undefined' && window.matchMedia)
+    ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+/* ─── Metadata normalization (shared by provider matching + cache keys) ─── */
+function normalizeMeta(s) {
+    if (!s) return '';
+    return String(s)
+        .toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[\(\[][^\)\]]*[\)\]]/g, ' ')
+        .replace(/['\u2019]/g, '')
+        .replace(/\b(feat|ft|featuring|prod|with)\b\.?/g, ' ')
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+function primaryArtist(artist) {
+    if (!artist) return '';
+    return String(artist).split(/[\/,&]| feat\.? | ft\.? | featuring /i)[0].trim();
+}
+function hashString(s) {
+    let h = 5381;
+    for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+    return (h >>> 0).toString(36);
+}
+function tokenSet(s) { return new Set(s.split(' ').filter(Boolean)); }
+function titleCompatible(a, b) {
+    if (!a || !b) return false;
+    if (a === b || a.includes(b) || b.includes(a)) return true;
+    const sa = tokenSet(a), sb = b.split(' ').filter(Boolean);
+    return sb.some(t => sa.has(t));
+}
+
+/* ─── LRC Parser: timestamps → ms, multi-tag lines, safe on malformed input ─── */
+const LRCParser = (() => {
+    const TAG_RE = /\[(\d{1,3}):(\d{1,2})(?:[.:](\d{1,3}))?\]/g;
+    function parse(lrcText) {
+        const out = [];
+        if (!lrcText || typeof lrcText !== 'string') return out;
+        const lines = lrcText.split(/\r?\n/);
+        for (const raw of lines) {
+            if (!raw) continue;
+            TAG_RE.lastIndex = 0;
+            const stamps = [];
+            let m, text = raw;
+            while ((m = TAG_RE.exec(raw)) !== null) {
+                const frac = m[3];
+                let ms = 0;
+                if (frac !== undefined) ms = frac.length === 3 ? parseInt(frac, 10) : parseInt(frac, 10) * (frac.length === 1 ? 100 : 10);
+                stamps.push(parseInt(m[1], 10) * 60000 + parseInt(m[2], 10) * 1000 + ms);
+            }
+            if (!stamps.length) continue; // metadata tags ([ti:…], [offset:…]) & junk ignored
+            text = raw.replace(TAG_RE, '').trim();
+            if (!text) continue;
+            for (const t of stamps) out.push({ time: t, text });
+        }
+        out.sort((a, b) => a.time - b.time);
+        const seen = new Set();
+        return out.filter(l => { const k = l.time + '|' + l.text; if (seen.has(k)) return false; seen.add(k); return true; });
+    }
+    function hasTimestamps(s) { return typeof s === 'string' && /\[\d{1,3}:\d{1,2}/.test(s); }
+    return { parse, hasTimestamps };
+})();
+
+/* ─── HTTP helper: timeout + external abort, JSON only ─── */
+function fetchJson(url, timeoutMs, outerSignal) {
+    return new Promise((resolve, reject) => {
+        const ac = new AbortController();
+        const timer = setTimeout(() => { ac.abort(); reject(new DOMException('Request timeout', 'TimeoutError')); }, timeoutMs);
+        const onAbort = () => { clearTimeout(timer); reject(new DOMException('Aborted', 'AbortError')); };
+        if (outerSignal) {
+            if (outerSignal.aborted) { clearTimeout(timer); reject(new DOMException('Aborted', 'AbortError')); return; }
+            outerSignal.addEventListener('abort', onAbort, { once: true });
+        }
+        fetch(url, { signal: ac.signal, headers: { 'Accept': 'application/json' } })
+            .then(res => { clearTimeout(timer); if (outerSignal) outerSignal.removeEventListener('abort', onAbort); resolve(res); })
+            .catch(err => { clearTimeout(timer); if (outerSignal) outerSignal.removeEventListener('abort', onAbort); reject(err); });
+    });
+}
+
+/* ─── LRCLIB result scoring: never accept unrelated same-title lyrics ─── */
+function scoreResult(r, track) {
+    const nt = normalizeMeta(track.title), na = normalizeMeta(primaryArtist(track.artist));
+    const rt = normalizeMeta(r.trackName), ra = normalizeMeta(r.artistName);
+    if (!rt || !ra) return -1;
+    if (!titleCompatible(rt, nt)) return -1; // hard gate: different song
+    if (!titleCompatible(ra, na)) return -1; // hard gate: unrelated artist
+    let s = 0;
+    if (rt === nt) s += 60; else if (rt.includes(nt) || nt.includes(rt)) s += 42; else s += 22;
+    if (ra === na) s += 30;
+    else if (ra.includes(na) || na.includes(ra)) s += 18;
+    else if (tokenSet(na).size && [...tokenSet(na)].some(t => tokenSet(ra).has(t))) s += 10;
+    if (track.duration && r.duration) {
+        const d = Math.abs(r.duration - track.duration);
+        if (d <= 2) s += 25; else if (d <= 7) s += 12;
+    }
+    if (track.album && r.albumName && normalizeMeta(track.album) === normalizeMeta(r.albumName)) s += 10;
+    return s;
+}
+function pickBest(results, track) {
+    let best = null, bestScore = 44; // threshold — below this we prefer a safe no-result
+    for (const r of results) {
+        const sc = scoreResult(r, track);
+        if (sc > bestScore) { bestScore = sc; best = r; }
+    }
+    return best;
+}
+function normalizeLrclib(d) {
+    if (!d || typeof d !== 'object') return null;
+    const synced = (typeof d.syncedLyrics === 'string' && d.syncedLyrics.trim()) ? d.syncedLyrics : null;
+    const plain = (typeof d.plainLyrics === 'string' && d.plainLyrics.trim()) ? d.plainLyrics : null;
+    return {
+        synced, plain,
+        instrumental: !!d.instrumental && !synced && !plain,
+        provider: 'lrclib',
+        duration: d.duration || null,
+        trackName: d.trackName || '', artistName: d.artistName || ''
+    };
+}
+
+/* ─── Provider 1: LRCLIB (primary) ─── */
+const LRCLIBProvider = {
+    name: 'lrclib',
+    async fetch(track, signal) {
+        const attempts = Math.max(1, CFG.providers.lrclib.maxAttempts || 1);
+        let lastErr = null;
+        for (let i = 0; i < attempts; i++) {
+            try {
+                let r = null;
+                if (track.duration && track.duration > 0) r = await this._getExact(track, signal);
+                if (!r) r = await this._search(track, signal);
+                if (r && (r.synced || r.plain || r.instrumental)) return r;
+                return null; // provider reachable, genuinely no match — do not retry
+            } catch (e) {
+                lastErr = e;
+                if (signal && signal.aborted) throw e;
+                if (i < attempts - 1) await sleep(400 * Math.pow(2, i)); // bounded backoff
+            }
+        }
+        if (lastErr) throw lastErr;
+        return null;
+    },
+    async _getExact(track, signal) {
+        const p = new URLSearchParams();
+        p.set('track_name', track.title || '');
+        p.set('artist_name', primaryArtist(track.artist));
+        if (track.album) p.set('album_name', track.album);
+        p.set('duration', String(Math.round(track.duration)));
+        const res = await fetchJson(CFG.providers.lrclib.baseUrl + '/get?' + p.toString(), CFG.requestTimeoutMs, signal);
+        if (res.status === 404) return null;
+        if (!res.ok) throw new Error('LRCLIB /get ' + res.status);
+        return normalizeLrclib(await res.json());
+    },
+    async _search(track, signal) {
+        const p = new URLSearchParams();
+        p.set('track_name', track.title || '');
+        p.set('artist_name', primaryArtist(track.artist));
+        const res = await fetchJson(CFG.providers.lrclib.baseUrl + '/search?' + p.toString(), CFG.requestTimeoutMs, signal);
+        if (!res.ok) throw new Error('LRCLIB /search ' + res.status);
+        const arr = await res.json();
+        if (!Array.isArray(arr) || !arr.length) return null;
+        const best = pickBest(arr, track);
+        return best ? normalizeLrclib(best) : null;
+    }
+};
+
+/* ─── Provider 2: lyrics.ovh — PLAIN LYRICS ONLY (no synced support) ───
+   Note: this API does not echo title/artist, so metadata validation is limited;
+   it is only consulted after LRCLIB + cache both fail. Disable via configure(). */
+const LyricsOvhProvider = {
+    name: 'lyrics.ovh',
+    async fetch(track, signal) {
+        const artist = primaryArtist(track.artist);
+        const title = (track.title || '').trim();
+        if (!artist || !title) return null;
+        const url = CFG.providers.lyricsOvh.baseUrl + '/' + encodeURIComponent(artist) + '/' + encodeURIComponent(title);
+        let res;
+        try { res = await fetchJson(url, CFG.requestTimeoutMs, signal); }
+        catch (e) { if (signal && signal.aborted) throw e; return null; } // unreachable — degrade silently
+        if (res.status === 404) return null;
+        if (!res.ok) return null; // rate-limit / server error — do not hammer
+        let d;
+        try { d = await res.json(); } catch { return null; }
+        if (!d || d.error || typeof d.lyrics !== 'string') return null;
+        const lyrics = d.lyrics.trim();
+        if (lyrics.length < 12) return null;
+        return { synced: null, plain: lyrics, instrumental: false, provider: 'lyrics.ovh' };
+    }
+};
+
+/* ─── LyricsCache: memory + localStorage, TTL, eviction, failures never cached ─── */
+const memCache = new Map();
+function safeStore() { try { const s = (typeof localStorage !== 'undefined') ? localStorage : null; if (s) { const k = '__swar_t'; s.setItem(k, '1'); s.removeItem(k); return s; } } catch {} return null; }
+const LyricsCache = {
+    key(track) {
+        const norm = [normalizeMeta(primaryArtist(track.artist)), normalizeMeta(track.title),
+            normalizeMeta(track.album || ''), (track.duration && track.duration > 0) ? String(Math.round(track.duration)) : ''].join('|');
+        return CFG.storagePrefix + hashString(norm);
+    },
+    get(key) {
+        let raw = memCache.get(key);
+        if (!raw) {
+            const s = safeStore();
+            if (!s) return null;
+            const v = s.getItem(key);
+            if (!v) return null;
+            try { raw = JSON.parse(v); } catch { return null; }
+            memCache.set(key, raw);
+        }
+        if (!raw || raw.v !== 1) return null;
+        if (!raw.synced && !raw.plain) return null; // never serve failures/empties
+        return {
+            synced: raw.synced || null, plain: raw.plain || null,
+            instrumental: !!raw.instrumental, provider: raw.provider || 'unknown',
+            expired: (Date.now() - (raw.fetchedAt || 0)) > CFG.cacheTtlMs,
+            fetchedAt: raw.fetchedAt || 0
+        };
+    },
+    set(key, entry) {
+        const rec = { v: 1, synced: entry.synced || null, plain: entry.plain || null,
+            instrumental: !!entry.instrumental, provider: entry.provider || 'unknown', fetchedAt: Date.now() };
+        memCache.set(key, rec);
+        const s = safeStore();
+        if (!s) return;
+        try { s.setItem(key, JSON.stringify(rec)); this._evict(false); }
+        catch { this._evict(true); try { s.setItem(key, JSON.stringify(rec)); } catch {} }
+    },
+    _evict(force) {
+        const s = safeStore();
+        if (!s) return;
+        const keys = [];
+        try { for (let i = 0; i < s.length; i++) { const k = s.key(i); if (k && k.indexOf(CFG.storagePrefix) === 0) keys.push(k); } } catch { return; }
+        if (keys.length <= CFG.maxCacheEntries && !force) return;
+        const withTs = keys.map(k => {
+            let t = 0;
+            try { const v = JSON.parse(s.getItem(k)); t = (v && v.fetchedAt) || 0; } catch {}
+            return { k, t };
+        }).sort((a, b) => a.t - b.t);
+        const drop = force ? Math.max(1, Math.ceil(withTs.length / 3)) : withTs.length - CFG.maxCacheEntries;
+        withTs.slice(0, Math.max(drop, 1)).forEach(x => { try { s.removeItem(x.k); } catch {} memCache.delete(x.k); });
+    }
+};
+
+/* ─── Controller: priority chain, dedup, race-condition guard ───
+   1 cached synced → 2 fresh LRCLIB (synced+plain) → 3 cached plain →
+   4 fresh plain (LRCLIB, bundled above) → 5 lyrics.ovh plain → 6 clean no-lyrics  */
+const LyricsController = {
+    seq: 0,
+    activeAC: null,
+    pending: new Map(),
+    abortActive() { if (this.activeAC) { try { this.activeAC.abort(); } catch {} this.activeAC = null; } },
+    load(track) {
+        const seq = ++this.seq;
+        this.abortActive();
+        if (!track) { View.render({ kind: 'notrack' }); return; }
+        const key = LyricsCache.key(track);
+        const cached = LyricsCache.get(key);
+        if (cached && !cached.expired && (cached.synced || cached.plain)) {
+            this._present(track, cached, { fromCache: true });
+            return;
+        }
+        View.render({ kind: 'loading' });
+        const ac = new AbortController();
+        this.activeAC = ac;
+        let p = this.pending.get(key);
+        if (!p) {
+            p = this._fetchWithFallback(track, ac.signal);
+            this.pending.set(key, p);
+            p.catch(() => {}).finally(() => { if (this.pending.get(key) === p) this.pending.delete(key); });
+        }
+        p.then(result => {
+            if (seq !== this.seq) return;
+            if (result && (result.synced || result.plain)) {
+                if (!result.fromCache) LyricsCache.set(key, result);
+                this._present(track, result, { fromCache: !!result.fromCache });
+                return;
+            }
+            if (result && result.instrumental) { View.render({ kind: 'instrumental', track }); return; }
+            const stale = LyricsCache.get(key);
+            if (stale && (stale.synced || stale.plain)) { this._present(track, stale, { fromCache: true, stale: true }); return; }
+            View.render({ kind: 'error', track });
+        }).catch(() => {
+            if (seq !== this.seq) return;
+            const stale = LyricsCache.get(key);
+            if (stale && (stale.synced || stale.plain)) { this._present(track, stale, { fromCache: true, stale: true }); return; }
+            View.render({ kind: 'error', track });
+        });
+    },
+    async _fetchWithFallback(track, signal) {
+        let r = null;
+        if (CFG.providers.lrclib.enabled) {
+            try { r = await LRCLIBProvider.fetch(track, signal); } catch (e) { if (signal.aborted) throw e; }
+        }
+        if (r && (r.synced || r.plain)) return r;
+        const cached = LyricsCache.get(LyricsCache.key(track)); // priority 3: cached plain/synced
+        if (cached && (cached.synced || cached.plain)) return Object.assign({}, cached, { fromCache: true });
+        if (r && r.instrumental) return r;
+        if (signal.aborted) throw new DOMException('Aborted', 'AbortError');
+        if (CFG.providers.lyricsOvh.enabled) {
+            try { r = await LyricsOvhProvider.fetch(track, signal); } catch (e) { if (signal.aborted) throw e; }
+            if (r && r.plain) return r;
+        }
+        return null;
+    },
+    _present(track, result, opts) {
+        const lines = result.synced ? LRCParser.parse(result.synced) : [];
+        if (lines.length) { View.render({ kind: 'synced', lines, track, source: result.provider, fromCache: !!opts.fromCache, stale: !!opts.stale }); return; }
+        if (result.plain && result.plain.trim()) { View.render({ kind: 'plain', text: result.plain, track, source: result.provider, fromCache: !!opts.fromCache, stale: !!opts.stale }); return; }
+        if (result.instrumental) { View.render({ kind: 'instrumental', track }); return; }
+        View.render({ kind: 'none', track });
+    }
+};
+
+/* ─── View: overlay UI + scrolling + sync presentation ─── */
+let overlay = null, linesWrap = null, scrollEl = null, chipsEl = null,
+    headTitle = null, headArtist = null, footEl = null;
+let isOpen = false;
+let syncTimer = null, linesCache = [], activeIndex = -1, offsetMs = 0;
+let userHoldUntil = 0, programmatic = false;
+
+function currentTrack() { try { return tracks[currentTrackIndex] || null; } catch { return null; } }
+
+function buildOverlay() {
+    if (overlay || typeof document === 'undefined') return;
+    overlay = document.createElement('div');
+    overlay.className = 'lyrics-overlay';
+    overlay.id = 'swarLyricsOverlay';
+    overlay.innerHTML =
+        '<div class="lyrics-top">' +
+            '<button class="lyrics-back" id="lyricsBackBtn" aria-label="Close lyrics">' +
+                '<svg viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6 1.41 1.41z"/></svg>' +
+            '</button>' +
+            '<div class="lyrics-head-meta">' +
+                '<div class="lyrics-head-title" id="lyricsHeadTitle">—</div>' +
+                '<div class="lyrics-head-artist" id="lyricsHeadArtist">—</div>' +
+            '</div>' +
+            '<div class="lyrics-badges" id="lyricsChips"></div>' +
+        '</div>' +
+        '<div class="lyrics-scroll" id="lyricsScroll"><div id="lyricsLinesWrap"></div></div>' +
+        '<div class="lyrics-foot" id="lyricsFoot">' +
+            '<div class="lyrics-offset">' +
+                '<button id="lyricsOffsetMinus" title="Lyrics sync -0.25s">−</button>' +
+                '<span class="lyrics-offset-val" id="lyricsOffsetVal">±0.0s</span>' +
+                '<button id="lyricsOffsetPlus" title="Lyrics sync +0.25s">+</button>' +
+            '</div>' +
+            '<button class="lyrics-jump" id="lyricsJump">' +
+                '<svg viewBox="0 0 24 24"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></svg>' +
+                'Current line' +
+            '</button>' +
+        '</div>';
+    const fs = document.getElementById('fullscreenPlayer');
+    (fs || document.body).appendChild(overlay);
+    linesWrap = overlay.querySelector('#lyricsLinesWrap');
+    scrollEl = overlay.querySelector('#lyricsScroll');
+    chipsEl = overlay.querySelector('#lyricsChips');
+    headTitle = overlay.querySelector('#lyricsHeadTitle');
+    headArtist = overlay.querySelector('#lyricsHeadArtist');
+    footEl = overlay.querySelector('#lyricsFoot');
+    overlay.querySelector('#lyricsBackBtn').addEventListener('click', close);
+    overlay.querySelector('#lyricsJump').addEventListener('click', () => { userHoldUntil = 0; if (activeIndex >= 0) scrollToLine(activeIndex, true); });
+    overlay.querySelector('#lyricsOffsetMinus').addEventListener('click', () => setOffset(offsetMs - 250));
+    overlay.querySelector('#lyricsOffsetPlus').addEventListener('click', () => setOffset(offsetMs + 250));
+    // Block the fullscreen swipe-down handler while lyrics are open; implement our own close swipe
+    let swipeY = 0, swipeArmed = false;
+    overlay.addEventListener('touchstart', e => {
+        e.stopPropagation();
+        swipeY = e.touches[0].clientY;
+        swipeArmed = scrollEl.scrollTop <= 0;
+    }, { passive: true });
+    overlay.addEventListener('touchmove', e => e.stopPropagation(), { passive: true });
+    overlay.addEventListener('touchend', e => {
+        e.stopPropagation();
+        if (swipeArmed && (e.changedTouches[0].clientY - swipeY) > 90) close();
+    }, { passive: true });
+    scrollEl.addEventListener('scroll', () => {
+        if (programmatic) return;
+        if (linesCache.length) userHoldUntil = Date.now() + CFG.userScrollHoldMs;
+    }, { passive: true });
+}
+
+function setOffset(v) {
+    offsetMs = Math.max(-10000, Math.min(10000, v));
+    const el = overlay.querySelector('#lyricsOffsetVal');
+    if (el) el.textContent = (offsetMs >= 0 ? '+' : '−') + (Math.abs(offsetMs) / 1000).toFixed(2) + 's';
+}
+
+function injectToggleButton() {
+    if (typeof document === 'undefined') return;
+    const panel = document.querySelector('.fs-options-panel');
+    if (!panel || document.getElementById('lyricsToggleBtn')) return;
+    const btn = document.createElement('button');
+    btn.className = 'fs-opt-btn';
+    btn.id = 'lyricsToggleBtn';
+    btn.setAttribute('aria-label', 'Toggle lyrics');
+    btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>Lyrics';
+    btn.addEventListener('click', toggle);
+    const share = panel.querySelector('[onclick="shareTrack()"]');
+    panel.insertBefore(btn, share || null);
+}
+
+/* ─── Synchronizer: reads the existing player's real position ─── */
+function findActiveIndex(lines, timeMs) {
+    let lo = 0, hi = lines.length - 1, ans = -1;
+    while (lo <= hi) { const mid = (lo + hi) >> 1; if (lines[mid].time <= timeMs) { ans = mid; lo = mid + 1; } else hi = mid - 1; }
+    return ans;
+}
+function startSync(lines) {
+    stopSync();
+    linesCache = lines; activeIndex = -1;
+    syncTimer = setInterval(syncTick, CFG.syncTickMs);
+    syncTick();
+}
+function stopSync() {
+    if (syncTimer) clearInterval(syncTimer);
+    syncTimer = null; linesCache = []; activeIndex = -1;
+}
+function syncTick() {
+    if (!isOpen || !linesCache.length) return;
+    if (typeof player === 'undefined' || !player || !player.getCurrentTime) return;
+    let t = 0;
+    try { t = player.getCurrentTime() * 1000; } catch { return; }
+    const idx = findActiveIndex(linesCache, t + offsetMs);
+    if (idx !== activeIndex) { activeIndex = idx; paintActive(); }
+}
+function paintActive() {
+    const els = linesWrap.children;
+    for (let i = 0; i < els.length; i++) els[i].classList.toggle('active', i === activeIndex && activeIndex >= 0);
+    if (activeIndex >= 0 && Date.now() > userHoldUntil) scrollToLine(activeIndex, false);
+}
+function scrollToLine(i, force) {
+    const el = linesWrap.children[i];
+    if (!el) return;
+    if (!force && Date.now() <= userHoldUntil) return;
+    programmatic = true;
+    const top = el.offsetTop - scrollEl.clientHeight * 0.38;
+    scrollEl.scrollTo({ top: Math.max(top, 0), behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+    setTimeout(() => { programmatic = false; }, 500);
+}
+
+function setChips(list) {
+    chipsEl.innerHTML = '';
+    for (const txt of list) {
+        const c = document.createElement('span');
+        c.className = 'lyrics-chip' + (txt.hl ? ' hl' : '');
+        c.textContent = txt.t; // textContent only — lyrics are never injected as HTML
+        chipsEl.appendChild(c);
+    }
+}
+
+const View = {
+    render(d) {
+        if (!overlay) return;
+        const t = d.track || currentTrack();
+        headTitle.textContent = t ? t.title : 'No track playing';
+        headArtist.textContent = t ? t.artist : '—';
+        stopSync();
+        linesWrap.innerHTML = '';
+        footEl.style.display = 'flex';
+        overlay.querySelector('.lyrics-offset').style.visibility = 'visible';
+        overlay.querySelector('#lyricsJump').style.display = '';
+
+        const state = (title, sub, spinner) => {
+            const wrap = document.createElement('div');
+            wrap.className = 'lyrics-state';
+            if (spinner) { const s = document.createElement('div'); s.className = 'lyrics-spinner'; wrap.appendChild(s); }
+            const h = document.createElement('div'); h.className = 'lyrics-state-title'; h.textContent = title;
+            const p = document.createElement('div'); p.className = 'lyrics-state-sub'; p.textContent = sub;
+            wrap.appendChild(h); wrap.appendChild(p);
+            linesWrap.appendChild(wrap);
+            footEl.style.display = 'none';
+        };
+
+        switch (d.kind) {
+            case 'loading':
+                setChips([{ t: 'Loading' }]);
+                state('Fetching lyrics…', 'Consulting LRCLIB database', true);
+                break;
+            case 'synced': {
+                setChips([
+                    { t: 'Synced', hl: true },
+                    { t: (d.source === 'lyrics.ovh' ? 'Lyrics.ovh' : 'LRCLIB') + (d.fromCache ? (d.stale ? ' · Stale cache' : ' · Cache') : '') }
+                ]);
+                for (const line of d.lines) {
+                    const el = document.createElement('div');
+                    el.className = 'lyrics-line';
+                    el.textContent = line.text;
+                    linesWrap.appendChild(el);
+                }
+                requestAnimationFrame(() => startSync(d.lines));
+                break;
+            }
+            case 'plain': {
+                setChips([
+                    { t: 'Plain', hl: true },
+                    { t: (d.source === 'lyrics.ovh' ? 'Lyrics.ovh' : 'LRCLIB') + (d.fromCache ? (d.stale ? ' · Stale cache' : ' · Cache') : '') }
+                ]);
+                const parts = String(d.text).split(/\r?\n/).filter(x => x.trim());
+                for (const part of parts) {
+                    const el = document.createElement('div');
+                    el.className = 'lyrics-line plainline';
+                    el.textContent = part;
+                    linesWrap.appendChild(el);
+                }
+                overlay.querySelector('.lyrics-offset').style.visibility = 'hidden';
+                overlay.querySelector('#lyricsJump').style.display = 'none';
+                break;
+            }
+            case 'instrumental':
+                setChips([{ t: 'Instrumental', hl: true }]);
+                state('Instrumental', 'This track appears to have no vocals.');
+                break;
+            case 'notrack':
+                setChips([]);
+                state('Nothing playing', 'Play a track to see its lyrics here.');
+                break;
+            case 'none':
+                setChips([{ t: 'No lyrics' }]);
+                state('No lyrics found', 'LRCLIB and the fallback provider have no lyrics for this track.');
+                break;
+            case 'error':
+            default:
+                setChips([{ t: 'Unavailable' }]);
+                state('Lyrics temporarily unavailable', 'The lyrics provider could not be reached. Playback is unaffected — try again shortly.');
+                break;
+        }
+    }
+};
+
+function open() {
+    buildOverlay();
+    if (!overlay) return;
+    isOpen = true;
+    overlay.classList.add('active');
+    const btn = document.getElementById('lyricsToggleBtn');
+    if (btn) btn.classList.add('lyrics-on');
+    scrollEl.scrollTop = 0;
+    userHoldUntil = 0;
+    setOffset(0);
+    LyricsController.load(currentTrack());
+}
+function close() {
+    isOpen = false;
+    stopSync();
+    if (overlay) overlay.classList.remove('active');
+    const btn = document.getElementById('lyricsToggleBtn');
+    if (btn) btn.classList.remove('lyrics-on');
+}
+function toggle() { isOpen ? close() : open(); }
+
+function onTrackChanged() {
+    offsetMs = 0;
+    if (!isOpen || !overlay) return;
+    const el = overlay.querySelector('#lyricsOffsetVal');
+    if (el) el.textContent = '±0.00s';
+    userHoldUntil = 0;
+    scrollEl.scrollTop = 0;
+    LyricsController.load(currentTrack());
+}
+
+/* ─── Install: inject button + overlay, hook playTrack by reference ─── */
+let installed = false;
+function install() {
+    if (installed || typeof document === 'undefined') return;
+    installed = true;
+    injectToggleButton();
+    buildOverlay();
+    try {
+        const orig = window.playTrack;
+        if (typeof orig === 'function') {
+            window.playTrack = function () {
+                const r = orig.apply(this, arguments);
+                try { onTrackChanged(); } catch (e) {}
+                return r;
+            };
+        }
+    } catch (e) {}
+}
+
+function configure(patch) {
+    if (!patch) return;
+    if (patch.lyricsOvh) Object.assign(CFG.providers.lyricsOvh, patch.lyricsOvh);
+    if (patch.lrclib) Object.assign(CFG.providers.lrclib, patch.lrclib);
+    if (patch.cacheTtlMs) CFG.cacheTtlMs = patch.cacheTtlMs;
+}
+
+const api = {
+    install, open, close, toggle, configure,
+    version: '1.0.0',
+    _test: { LRCParser, normalizeMeta, primaryArtist, pickBest, scoreResult, LyricsCache, CFG, findActiveIndex, View, Controller: LyricsController, LRCLIBProvider, LyricsOvhProvider }
+};
+if (typeof window !== 'undefined') window.SwarLyrics = api;
+else globalThis.SwarLyrics = api;
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install);
+    else install();
+}
+})();
+</script>
 </body>
 </html>
